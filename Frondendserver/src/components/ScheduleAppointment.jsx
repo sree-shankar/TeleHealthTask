@@ -45,8 +45,16 @@ const ScheduleAppointment = () => {
 
   const validate = () => {
     const newErrors = {};
+    const today = new Date();
+    const selectedDate = new Date(form.date);
+
     if (!form.doctor) newErrors.doctor = 'Doctor is required';
-    if (!form.date) newErrors.date = 'Date is required';
+    if (!form.date) {
+      newErrors.date = 'Date is required';
+    } else if (selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
+      newErrors.date = 'Please select a future date';
+    }
+
     if (!form.time) newErrors.time = 'Time is required';
     if (!form.reason) newErrors.reason = 'Reason is required';
 
@@ -54,26 +62,25 @@ const ScheduleAppointment = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
 
-  setLoading(true);
-  try {
-    await axios.post('http://localhost:5000/api/appointments', form);
+    setLoading(true);
+    try {
+      await axios.post('http://localhost:5000/api/appointments', form);
 
-    // Simulate 5-second delay before navigating
-    setTimeout(() => {
+      // Simulate 5-second delay before navigating
+      setTimeout(() => {
+        setLoading(false);
+        navigate('/appointments');
+      }, 5000);
+
+    } catch (err) {
       setLoading(false);
-      navigate('/appointments');
-    }, 4000);
-
-  } catch (err) {
-    setLoading(false);
-    alert('Something went wrong. Please try again.');
-  }
-};
-
+      alert('Something went wrong. Please try again.');
+    }
+  };
 
   return (
     <Box sx={{ minHeight: '100vh', py: { xs: 4, sm: 6 }, position: 'relative' }}>
@@ -106,7 +113,6 @@ const handleSubmit = async (e) => {
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
             <TextField
-              required
               select
               label="Select Doctor"
               value={form.doctor}
@@ -126,7 +132,6 @@ const handleSubmit = async (e) => {
             </TextField>
 
             <TextField
-              required
               type="date"
               label="Preferred Date"
               InputLabelProps={{ shrink: true }}
@@ -136,10 +141,12 @@ const handleSubmit = async (e) => {
               error={!!errors.date}
               helperText={errors.date}
               disabled={loading}
+              inputProps={{
+                min: new Date().toISOString().split("T")[0],
+              }}
             />
 
             <TextField
-              required
               type="time"
               label="Preferred Time"
               InputLabelProps={{ shrink: true }}
@@ -174,7 +181,6 @@ const handleSubmit = async (e) => {
             </Box>
 
             <TextField
-              required
               multiline
               minRows={3}
               label="Reason for Visit"
