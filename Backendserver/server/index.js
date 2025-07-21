@@ -82,6 +82,20 @@ app.patch("/api/appointments/:id", (req, res) => {
 });
 
 
+// DELETE an appointment
+app.delete("/api/appointments/:id", (req, res) => {
+  const appointmentId = parseInt(req.params.id);
+  const index = appointments.findIndex(appt => appt.id === appointmentId);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Appointment not found" });
+  }
+
+  appointments.splice(index, 1);
+  res.status(204).send(); // No content
+});
+
+
 app.listen(PORT, () =>
     console.log(`✅ Backend running at http://localhost:${PORT}`)
 );

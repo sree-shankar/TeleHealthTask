@@ -28,7 +28,7 @@ React Hooks	Clean state and effect management
 
 📅 Schedule a new appointment & ReSchedule appointment
 
-📋 View upcoming appointments
+📋 View upcoming appointments  & Delete appointment
 
 📄 Access prescriptions
 

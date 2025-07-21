@@ -36,6 +36,19 @@ const MyAppointments = () => {
     ? appointments
     : appointments.filter(a => a.status === filter);
 
+
+
+    const handleCancel = async (id) => {
+  if (window.confirm("Are you sure you want to cancel this appointment?")) {
+    try {
+      await axios.delete(`http://localhost:5000/api/appointments/${id}`);
+      setAppointments(prev => prev.filter(appt => appt.id !== id));
+    } catch (error) {
+      console.error("Failed to cancel appointment:", error);
+    }
+  }
+};
+
   return (
     <Box sx={{  minHeight: '100vh', py: { xs: 2, sm: 3 } }}>
       <Container maxWidth="md">
@@ -164,6 +177,8 @@ const MyAppointments = () => {
                   variant="contained"
                   size="small"
                   sx={{ backgroundColor: '#FFEB00', color: 'black' }}
+                 onClick={() => handleCancel(appt.id)}
+
                 >
                   Cancel
                 </Button>
