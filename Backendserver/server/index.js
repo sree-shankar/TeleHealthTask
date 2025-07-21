@@ -67,6 +67,21 @@ app.post("/api/appointments", (req, res) => {
     res.status(201).json(newAppt);
 });
 
+
+// PATCH existing appointment
+app.patch("/api/appointments/:id", (req, res) => {
+    const appointmentId = parseInt(req.params.id);
+    const index = appointments.findIndex(appt => appt.id === appointmentId);
+
+    if (index === -1) {
+        return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    appointments[index] = { ...appointments[index], ...req.body };
+    res.json(appointments[index]);
+});
+
+
 app.listen(PORT, () =>
     console.log(`✅ Backend running at http://localhost:${PORT}`)
 );

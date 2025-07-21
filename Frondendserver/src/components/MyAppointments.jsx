@@ -156,7 +156,7 @@ const MyAppointments = () => {
                   variant="contained"
                   size="small"
                   sx={{ backgroundColor: '#FFEB00', color: 'black' }}
-                  onClick={() => navigate('/schedule')}
+                   onClick={() => navigate('/schedule', { state: appt })}
                 >
                   Reschedule
                 </Button>

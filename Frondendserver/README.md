@@ -14,7 +14,7 @@ Styling	Material UI (MUI)
 
 
 React	SPA development, component-based UI
-Material UI	Fast, responsive and accessible UI components
+Material UI	Fast, responsive and accessible UI components,validation schedule form  reSchedule appointment
 React Router	Client-side routing
 Axios	Promise-based HTTP client
 Express.js	Lightweight backend framework
@@ -26,7 +26,7 @@ React Hooks	Clean state and effect management
 
 🎯 Key Features
 
-📅 Schedule a new appointment
+📅 Schedule a new appointment & ReSchedule appointment
 
 📋 View upcoming appointments
 
@@ -49,6 +49,7 @@ Add your screenshots in a  workouttasks\Frontendserver\src\assets\Images   folde
 ### Frontend
 ```bash
 
+cd Frondendserver>
 
 npm install
 npm run dev
@@ -59,8 +60,9 @@ npm run dev
 
 ```bash
 
+
 cd server>
 
 npm install
-node node index.js
+node index.js
 

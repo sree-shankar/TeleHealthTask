@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
@@ -17,7 +17,18 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+const doctorOptions = [
+  'Dr. Smith',
+  'Dr. Hari',
+  'Dr. Manu',
+  'Dr. Sri',
+  'Dr. Vishnu',
+  'Dr. Pant',
+  'Dr. Sarah Johnson',
+  'Dr. Michael Chen',
+];
 
 const ScheduleAppointment = () => {
   const [form, setForm] = useState({
@@ -27,16 +38,29 @@ const ScheduleAppointment = () => {
     type: 'Video Call',
     reason: '',
   });
-
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const location = useLocation();
+  const editAppointment = location.state;
+
+  useEffect(() => {
+    if (editAppointment) {
+      setForm({
+        doctor: editAppointment.doctor || '',
+        date: editAppointment.date || '',
+        time: editAppointment.time || '',
+        type: editAppointment.type || 'Video Call',
+        reason: editAppointment.reason || '',
+      });
+    }
+  }, [editAppointment]);
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
-    setErrors({ ...errors, [field]: '' }); // Clear error on change
+    setErrors({ ...errors, [field]: '' });
   };
 
   const handleTypeChange = (e, newType) => {
@@ -54,7 +78,6 @@ const ScheduleAppointment = () => {
     } else if (selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
       newErrors.date = 'Please select a future date';
     }
-
     if (!form.time) newErrors.time = 'Time is required';
     if (!form.reason) newErrors.reason = 'Reason is required';
 
@@ -65,20 +88,23 @@ const ScheduleAppointment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
     setLoading(true);
-    try {
-      await axios.post('http://localhost:5000/api/appointments', form);
 
-      // Simulate 5-second delay before navigating
+    try {
+      if (editAppointment) {
+        await axios.patch(`http://localhost:5000/api/appointments/${editAppointment.id}`, form);
+      } else {
+        await axios.post('http://localhost:5000/api/appointments', form);
+      }
+
       setTimeout(() => {
         setLoading(false);
         navigate('/appointments');
       }, 5000);
-
     } catch (err) {
-      setLoading(false);
-      alert('Something went wrong. Please try again.');
+      setTimeout(() => {
+        setLoading(false);
+      }, 5000);
     }
   };
 
@@ -101,10 +127,12 @@ const ScheduleAppointment = () => {
       <Container maxWidth="sm">
         <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, borderRadius: 3 }}>
           <Typography variant="h5" align="center" fontWeight="bold" gutterBottom>
-            Schedule Appointment
+            {editAppointment ? 'Reschedule Appointment' : 'Schedule Appointment'}
           </Typography>
           <Typography align="center" color="text.secondary" mb={4}>
-            Book your next healthcare appointment
+            {editAppointment
+              ? 'Update your healthcare appointment details'
+              : 'Book your next healthcare appointment'}
           </Typography>
 
           <Box
@@ -123,12 +151,11 @@ const ScheduleAppointment = () => {
               disabled={loading}
             >
               <MenuItem value="">Choose your healthcare provider</MenuItem>
-              <MenuItem value="Dr. Smith">Dr. Smith</MenuItem>
-              <MenuItem value="Dr. Hari">Dr. Hari</MenuItem>
-              <MenuItem value="Dr. Manu">Dr. Manu</MenuItem>
-              <MenuItem value="Dr. Sri">Dr. Sri</MenuItem>
-              <MenuItem value="Dr. Vishnu">Dr. Vishnu</MenuItem>
-              <MenuItem value="Dr. Pant">Dr. Pant</MenuItem>
+              {doctorOptions.map((doc) => (
+                <MenuItem key={doc} value={doc}>
+                  {doc}
+                </MenuItem>
+              ))}
             </TextField>
 
             <TextField
@@ -142,7 +169,7 @@ const ScheduleAppointment = () => {
               helperText={errors.date}
               disabled={loading}
               inputProps={{
-                min: new Date().toISOString().split("T")[0],
+                min: new Date().toISOString().split('T')[0],
               }}
             />
 
@@ -207,7 +234,7 @@ const ScheduleAppointment = () => {
                 background: 'linear-gradient(to right, #1e3c72, #2a5298)',
               }}
             >
-              Schedule Appointment
+              {editAppointment ? 'Update Appointment' : 'Schedule Appointment'}
             </Button>
           </Box>
         </Paper>
